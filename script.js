@@ -12,8 +12,8 @@ qrText.addEventListener("input", handleQRText)
 sizes.addEventListener("change", handleSize)
 shareBtn.addEventListener("click", handleShare)
 
-const defaultUrl = "https://github.com/AbdurasulovSardor"
-let colorLight = "#fff",
+let defaultUrl = "https://github.com/AbdurasulovSardor"
+let colorLight = "#FFF",
   colorDark = "#000",
   text = defaultUrl,
   size = 300
@@ -29,11 +29,9 @@ function handleLightColor(e) {
 }
 
 function handleQRText(e) {
-  const value = e.target.value
+  let value = e.target.value
   text = value
-  if (!value) {
-    text = defaultUrl
-  }
+  if (!text) text = defaultUrl
   generateQRCode()
 }
 
@@ -42,22 +40,11 @@ function handleSize(e) {
   generateQRCode()
 }
 
-async function generateQRCode() {
-  qrContainer.textContent = ""
-  new QRCode("qr-code", {
-    text,
-    height: size,
-    width: size,
-    colorLight,
-    colorDark
-  })
-  download.href = await resolveDataUrl()
-}
 function handleShare() {
   setTimeout(async () => {
     try {
-      const base64url = await resolveDataUrl()
-      const blob = await (await fetch(base64url)).blob()
+      const baseUrl = resolveDataUrl()
+      const blob = await (await fetch(baseUrl)).blob()
       const file = new File([blob], "QRCode.png", {
         type: blob.type
       })
@@ -71,18 +58,27 @@ function handleShare() {
   }, 100);
 }
 
-function resolveDataUrl() {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const img = document.querySelector("#qr-code img")
-      if (img.currentSrc) {
-        resolve(img.currentSrc)
-        return
-      }
-      const canvas = document.querySelector("canvas")
-      resolve(canvas.toDataURL())
-    }, 50);
+function generateQRCode() {
+  qrContainer.textContent = ""
+  new QRCode("qr-code", {
+    text,
+    height: size,
+    width: size,
+    colorLight,
+    colorDark
   })
+  download.href = resolveDataUrl()
+}
+
+function resolveDataUrl() {
+  setTimeout(() => {
+    const img = document.querySelector("#qr-code img")
+    if (img.currentSrc) {
+      return img.currentSrc
+    }
+    const canvas = document.querySelector("canvas")
+    return canvas.toDataURL()
+  }, 1000);
 }
 
 generateQRCode()
